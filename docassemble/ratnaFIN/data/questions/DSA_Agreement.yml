@@ -1,0 +1,149 @@
+modules:
+  - .db_data
+---
+objects:
+  - borrower: Individual
+  - witness: |
+      DAList.using(
+      object_type=Individual,
+      ask_number=True)
+
+---
+id: interview order
+initial: True
+code: |
+  aggrement_details
+  type_of_dsa
+  dsa_details
+  if  is_witness_available:
+    for i in witness:
+      i
+  ratnafin_official_details
+  e_stamp
+  final_shown
+
+---
+field: aggrement_details
+question: |
+  Agreement Details 
+fields:
+  - Date of the Agreement : agreement_date 
+    datatype: date
+---
+question: |
+  E-Stamping Details of DSA Agreement
+fields:
+  - Service Agreement : e_stamp
+    datatype: file
+    accept: |
+      "application/pdf, image/png"
+---
+question: |
+  DSA Type
+fields:
+  - What Type of DSA : type_of_dsa
+    choices:
+      - Proprietorship Firm
+      - Individual
+      - Partnership Firm
+      - Limited Liability Partnership (LLP)
+      - Private Limited Company
+      - Public Limited Company
+      - Corporate Body
+
+---
+field: dsa_details
+question: |
+  Details of the DSA 
+fields:
+  - Constitution: type_of_dsa
+    js disable if: |
+      ${ json.dumps(type_of_dsa) } !== '' || val('type_of_dsa') === NaN
+  - First Name : borrower.name.first  
+    show if:
+      code: |
+        type_of_dsa == "Individual" or type_of_dsa == "Proprietorship Firm"
+  - Middle Name: borrower.name.middle 
+    show if:
+      code: |
+        type_of_dsa == "Individual" or type_of_dsa == "Proprietorship Firm"
+    required: False
+  - Last Name: borrower.name.last
+    show if:
+      code: |
+        type_of_dsa == "Individual" or type_of_dsa == "Proprietorship Firm"
+  - Company Name: borrower_company
+    show if:
+      code: |
+        type_of_dsa != "Individual"
+  - Designation : borrower_designation
+  - LLPIN : llpin
+    show if:
+      code: |
+        type_of_dsa == "Limited Liability Partnership (LLP)"
+  - CIN No.: cin
+    show if:
+      code: |
+        type_of_dsa == "Public Limited Company" or type_of_dsa == "Private Limited Company" or type_of_dsa== "Corporate Body"
+  - DIN/PAN : borrower_pan_or_din
+  - Address: borrower.address.address
+  - City: borrower.address.city
+  - State: borrower.address.state
+  - Zip code: borrower.address.zip
+  - Email – address: borrower.email
+    datatype: email
+  - Phone Number:  borrower.phone
+  - Is Witness Available ?: is_witness_available
+    datatype: yesnoradio
+  - No of Witnesses : witness.target_number
+    datatype: integer
+    min: 1
+    show if: is_witness_available
+---
+code: |
+  if type_of_dsa != "Individual" or type_of_dsa != "Proprietorship Firm":
+    borrower.name.first = ''
+    borrower.name.middle = ''
+    borrower.name.last = ''
+---
+field: witness_details
+question: |
+  Details of the ${ ordinal(i) } Witness
+fields:
+  - First Name: witness[i].name.first  
+  - Middle Name: witness[i].name.middle 
+    required: False
+  - Last Name: witness[i].name.last
+  - Address: witness[i].address.address
+  - City: witness[i].address.city
+  - State: witness[i].address.state
+  - Zip Code: witness[i].address.zip
+---
+field: ratnafin_official_details 
+question: |
+  Details of the Authorized official of RPCL (DSA Manager)
+fields:
+  - Name : dsa_manager_name
+  - Email : dsa_manager_email
+  - Phone Number : dsa_manager_phone
+---
+question: |
+  Thanks for uploading that document.
+subquestion: |
+  I am now converting the page images. 
+  Give me a minute to do so then press continue button.
+continue button field: wait_screen
+---
+event: final_shown
+question: |
+  Download document for DSA Agreement
+attachment code: |  
+  [the_document]
+---
+attachment:
+  name: Document for DSA Agreement
+  variable name: the_document
+  docx template file: DSA_Agreement_Booklet.docx
+  valid formats:
+    - pdf
+    - docx

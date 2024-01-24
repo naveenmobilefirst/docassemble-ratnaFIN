@@ -1,0 +1,149 @@
+---
+include:
+  - docassemble.demo:data/questions/examples/cards.yml
+---
+mandatory: True
+question: |
+    Dashboard
+subquestion: |
+  <div class="container">
+  <div class="row">
+    <div class="col-md-4">
+      <div class="card" style="width: 18rem;">
+        <div class="card-body">
+          <h5 class="card-title">Business Loan Unsecured</h5>
+          <p class="card-text">Click on the below button to go to interview.</p>
+          <a href="https://docassemble.ratnaafintech.com/interview?i=docassemble.playground3:Business_Unsecured_Loan.yml&new_session=1" class="btn btn-primary">Create Agreement</a>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card" style="width: 18rem;">
+        <div class="card-body">
+          <h5 class="card-title">Loan Against Property</h5>
+          <p class="card-text">Click on the below button to go to interview.</p>
+          <a href="https://docassemble.ratnaafintech.com/interview?i=docassemble.playground3:Loan_Against_Property.yml&new_session=1" class="btn btn-primary">Create Agreement</a>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card" style="width: 18rem;">
+        <div class="card-body">
+          <h5 class="card-title">Personal Loan</h5>
+          <p class="card-text">Click on the below button to go to interview.</p>
+          <a href="https://docassemble.ratnaafintech.com/interview?i=docassemble.playground3:Personal_Loan.yml&new_session=1" class="btn btn-primary">Create Agreement</a>
+        </div>
+      </div>
+    </div>
+   </div>
+  </br>
+  </hr>
+  </br>
+  <div class="row">
+    <div class="col-md-4">
+      <div class="card" style="width: 18rem;">
+        <div class="card-body">
+          <h5 class="card-title">Equipment Finance Loan</h5>
+          <p class="card-text">Click on the below button to go to interview.</p>
+          <a href="https://docassemble.ratnaafintech.com/interview?i=docassemble.playground3:Equipment_Finance.yml&new_session=1" class="btn btn-primary">Create Agreement</a>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card" style="width: 18rem;">
+        <div class="card-body">
+          <h5 class="card-title">Business Loan Prime</h5>
+          <p class="card-text">Click on the below button to go to interview.</p>
+          <a href="https://docassemble.ratnaafintech.com/interview?i=docassemble.playground3:BL_Prime.yml&new_session=1" class="btn btn-primary">Create Agreement</a>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card" style="width: 18rem;">
+        <div class="card-body">
+          <h5 class="card-title">Channel Finance Purchase Invoice Discounting</h5>
+          <p class="card-text">Click on the below button to go to interview.</p>
+          <a href="https://docassemble.ratnaafintech.com/interview?i=docassemble.playground3:CF_Purchase_Invoice_Discounting.yml&new_session=1" class="btn btn-primary">Create Agreement</a>
+        </div>
+      </div>
+    </div>
+   </div>
+  </br>
+  </hr>
+  </br>
+  <div class="row">
+    <div class="col-md-4">
+      <div class="card" style="width: 18rem;">
+        <div class="card-body">
+          <h5 class="card-title">Channel Finance WCDL</h5>
+          <p class="card-text">Click on the below button to go to interview.</p>
+          <a href="https://docassemble.ratnaafintech.com/interview?i=docassemble.playground3:WCDL.yml&new_session=1" class="btn btn-primary">Create Agreement</a>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card" style="width: 18rem;">
+        <div class="card-body">
+          <h5 class="card-title">Channel Finance Sales Invoice Discounting</h5>
+          <p class="card-text">Click on the below button to go to interview.</p>
+          <a href="https://docassemble.ratnaafintech.com/interview?i=docassemble.playground3:Sale_Bill_Discounting.yml&new_session=1" class="btn btn-primary">Create Agreement</a>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card" style="width: 18rem;">
+        <div class="card-body">
+          <h5 class="card-title">Purchase Invoice Discounting Dual Recourse(Anchor)</h5>
+          <p class="card-text">Click on the below button to go to interview.</p>
+          <a href="https://docassemble.ratnaafintech.com/interview?i=docassemble.playground3:CF_Dual_Recourse_Anchor.yml&new_session=1" class="btn btn-primary">Create Agreement</a>
+        </div>
+      </div>
+    </div>
+   </div>
+  </br>
+  </hr>
+  </br>
+  <div class="row">
+    <div class="col-md-4">
+      <div class="card" style="width: 18rem;">
+        <div class="card-body">
+          <h5 class="card-title">Jai Kishan Purchase Invoice Discounting - Dual Recourse(Anchor)</h5>
+          <p class="card-text">Click on the below button to go to interview.</p>
+          <a href="https://docassemble.ratnaafintech.com/interview?i=docassemble.playground3:Jai_Kisan_Dual_Recourse_PBD.yml&new_session=1" class="btn btn-primary">Create Agreement</a>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card" style="width: 18rem;">
+        <div class="card-body">
+          <h5 class="card-title">Jai Kishan WCDL</h5>
+          <p class="card-text">Click on the below button to go to interview.</p>
+          <a href="https://docassemble.ratnaafintech.com/interview?i=docassemble.playground3:Jai_Kisan_WCDL.yml&new_session=1" class="btn btn-primary">Create Agreement</a>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card" style="width: 18rem;">
+        <div class="card-body">
+          <h5 class="card-title">DSA Agreement</h5>
+          <p class="card-text">Click on the below button to go to interview.</p>
+          <a href="https://docassemble.ratnaafintech.com/interview?i=docassemble.playground3:DSA_Agreement.yml&new_session=1" class="btn btn-primary">Create Agreement</a>
+        </div>
+      </div>
+    </div>
+   </div>
+  </div> 
+
+script: |
+  <script>
+      
+    var daquestionElement = document.getElementById('daquestion');
+
+    // Remove all existing classes from the element
+    daquestionElement.className = '';
+
+    // Add the desired class to the element
+    daquestionElement.classList.add('tab-pane', 'fade', 'show', 'active', 'col-lg-12');
+
+  </script>
+---

@@ -1,0 +1,616 @@
+modules:
+  - .db_data
+---
+objects:
+  - borrower: Individual
+  - co_borrower: |
+      DAList.using(
+      object_type=Individual,
+      ask_number=True)
+  - guarantor: |
+      DAList.using(
+      object_type=Individual,
+      ask_number=True)
+---
+code: |
+  branch_address = branch_addres(branch_place)[0]
+---
+id: interview order
+initial: True
+code: |
+  aggrement_details
+  company_type_of_borrower
+  borrower_details
+  if  is_co_borrower_available:
+    for i in co_borrower:
+      i
+  is_guarantor_available
+  if is_guarantor_available:
+    for i in guarantor:
+      i
+  branch_details
+  loan_details
+  ratnafin_official_details
+  e_stamp
+  wait_screen
+  final_shown
+
+---
+field: aggrement_details
+question: |
+  Agreement Details 
+fields:
+  - Date of the Agreement : agreement_date 
+    datatype: date
+  - Place of Execution : execution_place 
+---
+question: |
+  E-Stamping Details of Jai Kisan Dual Recourse PBD
+fields:
+  - Facility Agreement : e_stamp
+    datatype: file
+    accept: |
+      "application/pdf, image/png"
+    required: False
+  - Declaration cum Undertaking Cum Authority : e_stamp_DCUCA
+    datatype: file
+    accept: |
+      "application/pdf, image/png" 
+    required: False
+  - Vernacular Declaration and Confirmation : e_stamp_VDAC
+    datatype: file
+    accept: |
+      "application/pdf, image/png"
+    required: False
+  - Deed Of Guarantee  : e_stamp_DOG
+    datatype: file
+    show if:
+      code: |
+        is_guarantor_available == True
+    accept: |
+      "application/pdf, image/png"
+    required: False
+  - Memorandum in Relation to Security Deposit  : e_stamp_MIRTSD
+    datatype: file
+    show if:
+      code: |
+        security_deposit_or_dsra == True
+    accept: |
+      "application/pdf, image/png"
+    required: False
+    
+   
+---
+question: |
+  DECLARATIONS CUM UNDERTAKINGS CUM AUTHORITY
+fields:
+  - What Type of Borrower : company_type_of_borrower
+    choices:
+      - Proprietorship Firm
+      - Individual
+      - Partnership Firm
+      - Limited Liability Partnership (LLP)
+      - Private Limited Company
+      - Public Limited Company
+      - Hindu Undivided Family
+
+---
+field: borrower_details
+question: |
+  Details of the Borrower 
+fields:
+  - Constitution: company_type_of_borrower
+    js disable if: |
+      ${ json.dumps(company_type_of_borrower) } !== '' || val('company_type_of_borrower') === NaN
+  - First Name : borrower.name.first  
+    show if:
+      code: |
+        company_type_of_borrower == "Individual"
+  - Middle Name: borrower.name.middle
+    required: False
+    show if:
+      code: |
+        company_type_of_borrower == "Individual"
+  - Last Name: borrower.name.last
+    show if:
+      code: |
+        company_type_of_borrower == "Individual"
+  - Company Name: borrower_company
+    show if:
+      code: |
+        company_type_of_borrower != "Individual"
+  - Coparcener Names : copercener_names
+    show if:
+      code: |
+        company_type_of_borrower == "Hindu Undivided Family"
+  - Marital Status : marital_status
+    show if:
+      code: |
+        company_type_of_borrower == "Individual"
+  - Nationality : nationality
+    show if:
+      code: |
+        company_type_of_borrower == "Individual"
+  - Gender : gender
+    show if:
+      code: |
+        company_type_of_borrower == "Individual"
+  - Borrower Business : borrower_business
+  - LLPIN : llpin
+    show if:
+      code: |
+        company_type_of_borrower == "Limited Liability Partnership (LLP)"
+  - CIN No.: cin
+    show if:
+      code: |
+        company_type_of_borrower == "Public Limited Company" or company_type_of_borrower == "Private Limited Company" 
+  - PAN/Udhyam Aadhar of the Borrower : borrower_pan_or_tan_or_cin
+  - Date of issue of GST certificate of the Borrower : borrower_date_of_gst_issue
+    show if:
+      code: |
+        company_type_of_borrower != "Individual"
+    datatype: date
+    required: False
+  - Address of the Borrower [As per KYC] : borrower.address
+    show if:
+      code: |
+        company_type_of_borrower == "Individual"
+  - Registered Office Address of the Borrower [As per KYC] : borrower.reg_address
+    show if:
+      code: |
+        company_type_of_borrower != "Individual"
+  - Corporate Office Address of the Borrower [As per KYC] : borrower.corp_address
+    show if:
+      code: |
+        company_type_of_borrower != "Individual"
+  - Email – address of the Borrower: borrower.email
+    datatype: email
+  - Phone Number of the Borrower:  borrower.phone
+  - Attention Mr./Ms : borrwer_attention_mr_ms
+    show if:
+      code: |
+        company_type_of_borrower != "Individual"
+    required: False
+  - Is Co-Borrowers Available ?: is_co_borrower_available
+    datatype: yesnoradio
+  - No of Co-Borrowers : co_borrower.target_number
+    datatype: integer
+    min: 1
+    show if: is_co_borrower_available
+  - Is Proprietor present within the Co-borrowers ?: co_borrower_as_proprietor
+    datatype: yesnoradio
+    show if: 
+      code : |
+        company_type_of_borrower == "Proprietorship Firm"
+    js show if: |
+      val("is_co_borrower_available") === true
+  - Is Karta present within the Co-borrowers ?: karta
+    datatype: yesnoradio
+    show if: 
+      code : |
+        company_type_of_borrower == "Hindu Undivided Family"
+    js show if: |
+      val("is_co_borrower_available") === true
+---
+code: |
+  if company_type_of_borrower != "Individual":
+    borrower.name.first = ''
+    borrower.name.middle = ''
+    borrower.name.last = ''
+---
+field: co_borrower_details
+question: |
+  Details of the ${ ordinal(i) } Co-Borrower
+subquestion: |
+  % if ordinal(i) == "first" and company_type_of_borrower == "Proprietorship Firm" and co_borrower_as_proprietor:
+  Note: Below Co-borrower details are accepted for the Proprietor
+  % else:
+  % endif
+  % if ordinal(i) == "first" and company_type_of_borrower == "Hindu Undivided Family" and karta:
+  Note: Below Co-borrower details are accepted for the Karta
+  % else:
+  % endif
+fields:
+  - Constitution: co_borrower[i].constitution
+    choices:
+      - Proprietorship Firm
+      - Individual
+      - Partnership Firm
+      - Limited Liability Partnership (LLP)
+      - Private Limited Company
+      - Public Limited Company
+      - Hindu Undivided Family
+  - First Name: co_borrower[i].name.first  
+    js show if: |
+      val("co_borrower[i].constitution") === "Individual"
+  - Middle Name: co_borrower[i].name.middle
+    required: False
+    js show if: |
+      val("co_borrower[i].constitution") === "Individual"
+  - Last Name: co_borrower[i].name.last
+    js show if: |
+      val("co_borrower[i].constitution") === "Individual"
+  - Is this Co-Borrower a Partner ? :  co_borrower[i].partner
+    datatype: yesno
+    show if:
+      code : |
+        company_type_of_borrower in ('Limited Liability Partnership (LLP)','Partnership Firm')
+    js show if: |
+      val("co_borrower[i].constitution") === "Individual"
+  - Marital Status : co_borrower[i].marital_status
+    js show if: |
+      val("co_borrower[i].constitution") === "Individual"
+  - Nationality : co_borrower[i].nationality
+    js show if: |
+      val("co_borrower[i].constitution") === "Individual"
+  - Gender : co_borrower[i].gender
+    js show if: |
+      val("co_borrower[i].constitution") === "Individual"
+  - Company Name : co_borrower[i].company
+    js show if: |
+      val("co_borrower[i].constitution") !== "Individual"
+  - PAN/Udhyam Aadhar : co_borrower[i].pan_or_tan_or_cin
+  - Date of issue of GST certificate : co_borrower[i].date_of_gst_issue
+    js show if: |
+      val("co_borrower[i].constitution") !== "Individual"
+    datatype: date
+    required: False
+  - Address [As per KYC] : co_borrower[i].address
+    js show if: |
+      val("co_borrower[i].constitution") === "Individual"
+  - Registered Office Address [As per KYC] : co_borrower[i].reg_address
+    js show if: |
+      val("co_borrower[i].constitution") !== "Individual"
+  - Corporate Office Address [As per KYC] : co_borrower[i].corp_address
+    js show if: |
+      val("co_borrower[i].constitution") !== "Individual"
+  - Email – Address: co_borrower[i].email
+    datatype: email
+  - Phone Number: co_borrower[i].phone
+  - Attention Mr./Ms : co_borrower[i].mr_ms
+    hide if: 
+      variable: co_borrower[i].constitution
+      is: "Individual"
+    required: False
+---
+code: |
+  if co_borrower[i].constitution != 'Individual':
+    co_borrower[i].name.first = ''
+    co_borrower[i].name.middle = ''
+    co_borrower[i].name.last = ''
+---
+question: |
+  Guarantor Details? 
+fields:
+  - Is Guarantor Available : is_guarantor_available
+    datatype: yesnoradio
+  - No of Guarantors: guarantor.target_number
+    datatype: integer
+    show if: is_guarantor_available
+    min: 1
+  - Is Proprietor present within the Guarantors ?: guarantor_as_proprietor
+    datatype: yesnoradio
+    show if: 
+      code : |
+        (company_type_of_borrower == "Proprietorship Firm" and is_co_borrower_available  and not co_borrower_as_proprietor) or (company_type_of_borrower == "Proprietorship Firm" and not is_co_borrower_available)
+    js show if: |
+      val("is_guarantor_available") === true
+  - Is Karta present within the Guarantors ?: guarantor_karta
+    datatype: yesnoradio
+    show if: 
+      code : |
+        (company_type_of_borrower == "Hindu Undivided Family" and is_co_borrower_available  and not karta) or (company_type_of_borrower == "Hindu Undivided Family" and not is_co_borrower_available)
+    js show if: |
+      val("is_guarantor_available") === true
+  - Is Anchor present within the Guarantors ?: guarantor_anchor
+    datatype: yesnoradio
+    js show if: |
+      val("is_guarantor_available") === true
+---
+field: guarantor_details
+question: |
+  Details of the ${ ordinal(i) } Guarantor   
+subquestion: |
+  % if ordinal(i) == "first" and ((company_type_of_borrower == "Proprietorship Firm" and is_co_borrower_available  and not co_borrower_as_proprietor) or (company_type_of_borrower == "Proprietorship Firm" and not is_co_borrower_available)) and guarantor_as_proprietor:
+  Note: Below Guarantor details are accepted for the Proprietor
+  % else:
+  % endif
+  % if ordinal(i) == "first" and ((company_type_of_borrower == "Hindu Undivided Family" and is_co_borrower_available  and not karta) or (company_type_of_borrower == "Hindu Undivided Family" and not is_co_borrower_available)) and guarantor_karta:
+  Note: Below Guarantor details are accepted for the Karta ${"\n"}
+  % else:
+  % endif
+  % if ordinal(i) == "first" and guarantor_anchor:
+  Note: Below Guarantor details are accepted for the Anchor
+  % else:
+  % endif
+fields:
+  - Constitution: guarantor[i].constitution
+    choices:
+      - Proprietorship Firm
+      - Individual
+      - Partnership Firm
+      - Limited Liability Partnership (LLP)
+      - Private Limited Company
+      - Public Limited Company
+      - Hindu Undivided Family
+  - First Name: guarantor[i].name.first  
+    js show if: |
+      val("guarantor[i].constitution") === "Individual"
+  - Middle Name: guarantor[i].name.middle
+    required: False
+    js show if: |
+      val("guarantor[i].constitution") === "Individual"
+  - Last Name: guarantor[i].name.last
+    js show if: |
+      val("guarantor[i].constitution") === "Individual"
+  - Marital Status : guarantor[i].marital_status
+    js show if: |
+      val("guarantor[i].constitution") === "Individual"
+  - Nationality : guarantor[i].nationality
+    js show if: |
+      val("guarantor[i].constitution") === "Individual"
+  - Gender : guarantor[i].gender
+    js show if: |
+      val("guarantor[i].constitution") === "Individual"
+  - Is this Guarantor a Partner ? :  guarantor[i].partner
+    datatype: yesno
+    show if:
+      code : |
+        company_type_of_borrower in ('Limited Liability Partnership (LLP)','Partnership Firm')
+    js show if: |
+      val("guarantor[i].constitution") === "Individual"
+  - Company Name : guarantor[i].company
+    js show if: |
+      val("guarantor[i].constitution") !== "Individual" 
+  - PAN/Udhyam Aadhar : guarantor[i].pan_or_tan_or_cin
+  - Date of issue of GST certificate : guarantor[i].date_of_gst_issue
+    js show if: |
+      val("guarantor[i].constitution") !== "Individual"
+    datatype: date
+    required: False
+  - Address [As per KYC] : guarantor[i].address
+    js show if: |
+      val("guarantor[i].constitution") === "Individual"
+  - Registered Office Address [As per KYC] : guarantor[i].reg_address
+    js show if: |
+      val("guarantor[i].constitution") !== "Individual"
+  - Corporate Office Address [As per KYC] : guarantor[i].corp_address
+    js show if: |
+      val("guarantor[i].constitution") !== "Individual"
+  - Email – Address: guarantor[i].email
+    datatype: email
+  - Phone Number:  guarantor[i].phone
+  - Attention Mr./Ms : guarantor[i].mr_ms
+    hide if: 
+      variable: guarantor[i].constitution
+      is: "Individual"
+    required: False
+
+---
+code: |
+  if guarantor[i].constitution != 'Individual':
+    guarantor[i].name.first = ''
+    guarantor[i].name.middle = ''
+    guarantor[i].name.last = ''
+---
+code : |
+  individual_found = False
+  corporate_found = False
+  if is_guarantor_available:
+    for i in guarantor:
+      if i.constitution == "Individual":
+        individual_found = True
+      else:
+        corporate_found = True
+---
+code : |
+  all_partners = ''
+  if company_type_of_borrower =='Partnership Firm':
+    count =1
+    if is_co_borrower_available:
+      for i in co_borrower:
+        if i.constitution == "Individual" and i.partner:
+          count += 1
+          all_partners = all_partners + "("+str(count)+")"+i.name.first + " "+i.name.middle+" "+i.name.last+", "
+    if is_guarantor_available:
+      for i in guarantor:
+        if i.constitution == "Individual" and i.partner:
+          count += 1
+          all_partners = all_partners + "("+str(count)+")"+i.name.first + " "+i.name.middle+" "+i.name.last+", "
+  elif company_type_of_borrower =='Limited Liability Partnership (LLP)':
+    count = 0
+    if is_co_borrower_available:
+      for i in co_borrower:
+        if i.constitution == "Individual" and i.partner:
+          count += 1
+          all_partners = all_partners + "("+str(count)+")"+i.name.first + " "+i.name.middle+" "+i.name.last+", "
+    if is_guarantor_available:
+      for i in guarantor:
+        if i.constitution == "Individual" and i.partner:
+          count += 1
+          all_partners = all_partners + "("+str(count)+")"+i.name.first + " "+i.name.middle+" "+i.name.last+", "
+     
+---
+field: branch_details
+question: |
+  Details of the Branch
+fields:
+  - Place of the Branch : branch_place 
+    code: |
+      branch_places
+  - Email – address(es) of the Branch: branch_mail
+    datatype: email
+  - Phone No. (s) of the Branch: branch_phone 
+  - Attention Mr./Ms : branch_mr_ms
+    required: False
+---
+field: loan_details
+question: |
+  Details of the Loan
+fields:
+  - Sanction Letter No.: loan_sanction_letter_number 
+  - Date of Sanction Letter: loan_date_of_sanction_letter 
+    datatype: date
+  - Facility Type: loan_facility_type 
+  - Specified Purpose: loan_specified_purpose 
+  - Amount of Loan: loan_amount   
+  - Rate of Interest: loan_interest_rate    
+    datatype: number
+    max : 100
+  - Rate of FRR: loan_frr_rate    
+    datatype: number
+    max : 100
+  - Loan Processing fee: loan_processing_fee
+    datatype: number
+    max : 100
+  - Tenure of the facility : facility_tenure
+    datatype: integer
+    hint: Tenure in months
+  - Tenure of Loan/Usance Tenure: loan_tenure 
+  - Remarks : remarks
+    required: False
+  - Additional/Penal Interest: loan_penal_interest 
+    datatype: number
+    hint: Per Month
+    max : 100
+  - Repayment Method: loan_repayment_method 
+    code: |
+      repayment_list
+  - Repayment Frequency: repayment_frequency
+  - Mode of Disbursal : mode_of_disbursal
+  - Prepayment/Foreclosure Charges: loan_foreclosure  
+  - Is Security Deposit/DSRA Available: security_deposit_or_dsra
+    required: False
+    datatype: yesnoradio
+  - Security Deposit/DSRA : security_deposit_or_dsra_des
+    show if: security_deposit_or_dsra
+  - MRFD-SD/DSRA : security_deposit_amount
+    show if: security_deposit_or_dsra
+  - Renewal Fees : renewal_fees
+    datatype: number
+    max : 100
+  - Minimum Utilization: minimum_utilization
+  - Non Utilization Charges: non_utilization_charges
+    datatype: number
+    max : 100
+
+script: |
+  <script>
+  document.getElementById('bG9hbl9hbW91bnQ').addEventListener('input', function (event) {
+    let inputValue = event.target.value.replace(/[^\d]/g, ''); // Remove non-numeric characters
+    event.target.value = formatNumber(inputValue);
+  });
+
+  function formatNumber(number) {
+    var afterPoint = '';
+    if(number.indexOf('.') > 0)
+       afterPoint = number.substring(number.indexOf('.'), number.length);
+    number = Math.floor(number);
+    number = number.toString();
+    var lastThree = number.substring(number.length-3);
+    var otherNumbers = number.substring(0,number.length-3);
+    if(otherNumbers != '')
+        lastThree = ',' + lastThree;
+    var formattedNumber = otherNumbers.replace(/\B(?=(\d{2})+(?!\d))/g, ",") + lastThree + afterPoint;
+    return formattedNumber;
+  }
+  </script>
+  <script>
+  // Assuming security_deposit_or_dsra is defined somewhere and is a boolean
+  // For instance, let security_deposit_or_dsra = true;
+  
+    document.getElementById('X2ZpZWxkXzE4').addEventListener('input', function (event) {
+      let inputValue = event.target.value.replace(/[^\d]/g, ''); // Remove non-numeric characters
+      event.target.value = formatNumber(inputValue);
+    });
+  
+    function formatNumber(number) {
+      number = parseInt(number, 10); // Parse the string to an integer
+      if (isNaN(number)) {
+        return ''; // Return an empty string if number is not a valid number
+      }
+      var afterPoint = '';
+      if (number.toString().indexOf('.') > 0) {
+        afterPoint = number.toString().substring(number.toString().indexOf('.'), number.length);
+        number = Math.floor(number);
+      }
+      number = number.toString();
+      var lastThree = number.substring(number.length - 3);
+      var otherNumbers = number.substring(0, number.length - 3);
+      if (otherNumbers != '') {
+        lastThree = ',' + lastThree;
+      }
+      var formattedNumber = otherNumbers.replace(/\B(?=(\d{2})+(?!\d))/g, ",") + lastThree + afterPoint;
+      return formattedNumber;
+    }
+  </script>
+---
+field: ratnafin_official_details 
+question: |
+  Details of the Authorized official of RPCL
+fields:
+  - Name : ratnaafin_official_name
+
+---
+code: |
+  am = loan_amount.replace(",","")
+  loan_total = number_to_indian_words(am)
+  loan_amount_in_words = loan_total.replace(",","")
+  if security_deposit_or_dsra:
+    sd_am = security_deposit_amount.replace(",","")
+    sd_amount_total = number_to_indian_words(sd_am)
+    sd_amount_in_words = sd_amount_total.replace(",","")
+---
+
+code: |
+  branch_places = ["Head Office", "C.G. Road","Bapunagar","Gandhinagar","Baroda","Rajkot","Surat","Himmatnagar","Mehsana","Palanpur","Vapi","Ankleshwar","Gandhidham"]
+  ratnaafin_company_address="201-205, Shilp Aperia, Near Ashok Vatika, Bopal-Ambli Road, Ahmedabad, Gujarat - 380054"
+  repayment_list = ["NACH","PDC","RTGS","NACH OR RTGS","ESCROW"]
+---
+code: |
+  penal_interest_per_annum = loan_penal_interest * 12
+  loan_penal_interest_per_annum = "{:.2f}".format(penal_interest_per_annum)
+  operator1 = ''
+  formated_loan_interest_rate = "{:.2f}".format(loan_interest_rate)
+  formated_loan_frr_rate = "{:.2f}".format(loan_frr_rate)
+  if loan_interest_rate > loan_frr_rate:
+    loan_spread_rate = round(loan_interest_rate - loan_frr_rate, 2)
+    formated_loan_spread_rate = "{:.2f}".format(loan_spread_rate)
+    operator1 = "+"
+    interest = "{:.2f} % ( FRR {:.2f}% + {:.2f} %)".format(
+        loan_interest_rate, round(loan_frr_rate, 2), round(loan_spread_rate, 2)
+    )
+  else:
+    loan_spread_rate = round(loan_frr_rate - loan_interest_rate, 2)
+    formated_loan_spread_rate = "{:.2f}".format(loan_spread_rate)
+    operator1 = "-"
+    interest = "{:.2f} % ( FRR {:.2f}% - {:.2f} %)".format(
+        loan_interest_rate, round(loan_frr_rate, 2), round(loan_spread_rate, 2)
+    )
+---
+code: |
+  internal_path = url_of('root', _external=True) + url_of(the_document)
+  external_path = the_document.path()
+---
+question: |
+  Thanks for uploading that document.
+subquestion: |
+  I am now converting the page images. 
+  Give me a minute to do so then press continue button.
+continue button field: wait_screen
+---
+event: final_shown
+question: |
+  Download document for Jai Kisan Dual Recourse PBD ${file_paths_storage_in_db(internal_path,external_path)}
+    
+attachment code: |  
+  [the_document]
+---
+attachment:
+  name: Document for Jai Kisan Dual Recourse PBD
+  variable name: the_document
+  docx template file: Jai_Kisan_Dual_Recourse_PBD_Booklet.docx
+  valid formats:
+    - pdf
+    - docx
+---
