@@ -494,6 +494,15 @@ fields:
     datatype: number
     max : 100
 
+validation code: |
+  l_m = loan_amount.replace(",","")
+  if int(l_m) >= 10000000000 :
+    validation_error('Loan amount should be less than 10000000000',field="loan_amount")
+  if security_deposit_or_dsra:
+    dsa_m = security_deposit_amount.replace(",","")
+    if int(dsa_m) >= 10000000000 :
+      validation_error('Security Deposit amount should be less than 10000000000',field="security_deposit_amount")
+
 script: |
   <script>
   document.getElementById('bG9hbl9hbW91bnQ').addEventListener('input', function (event) {

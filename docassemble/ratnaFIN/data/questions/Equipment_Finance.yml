@@ -383,6 +383,11 @@ fields:
   - Insurance Details: insurance_details
   - Other Details (if any): other_details
 
+validation code: |
+  in_m = invoice_amount.replace(",","")
+  if int(in_m) >= 10000000000 :
+    validation_error('Invoice amount should be less than 10000000000',field="invoice_amount")
+
 script: |
   <script>
   document.getElementById('aW52b2ljZV9hbW91bnQ').addEventListener('input', function (event) {
@@ -452,6 +457,15 @@ fields:
   - MRFD-SD/DSRA : security_deposit_amount
     show if: security_deposit_or_dsra
   - Lock-in Period: loan_lockin_period 
+
+validation code: |
+  l_m = loan_amount.replace(",","")
+  if int(l_m) >= 10000000000 :
+    validation_error('Loan amount should be less than 10000000000',field="loan_amount")
+  if security_deposit_or_dsra:
+    dsa_m = security_deposit_amount.replace(",","")
+    if int(dsa_m) >= 10000000000 :
+      validation_error('Security Deposit amount should be less than 10000000000',field="security_deposit_amount")
 
 script: |
   <script>

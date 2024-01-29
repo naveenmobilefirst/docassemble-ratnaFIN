@@ -426,6 +426,14 @@ fields:
   - On or towards South: collateral_properties[i].south_of_property
   - On or towards East: collateral_properties[i].east_of_property
   - On or towards West: collateral_properties[i].west_of_property
+
+validation code: |
+  if collateral_properties.target_number >=1:
+    for i in collateral_properties:
+      c_am = i.present_market_value.replace(",","")
+      if int(c_am) >= 10000000000 :
+        validation_error('Loan amount should be less than 10000000000',field="i.present_market_value")
+
   
 script: |
   <script>
@@ -552,6 +560,15 @@ fields:
   - MRFD-SD/DSRA : security_deposit_amount
     show if: security_deposit_or_dsra
   - Lock-in Period: loan_lockin_period 
+
+validation code: |
+  l_m = loan_amount.replace(",","")
+  if int(l_m) >= 10000000000 :
+    validation_error('Loan amount should be less than 10000000000',field="loan_amount")
+  if security_deposit_or_dsra:
+    dsa_m = security_deposit_amount.replace(",","")
+    if int(dsa_m) >= 10000000000 :
+      validation_error('Security Deposit amount should be less than 10000000000',field="security_deposit_amount")
 
 script: |
   <script>

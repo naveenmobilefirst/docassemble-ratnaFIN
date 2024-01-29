@@ -379,7 +379,9 @@ fields:
     datatype: date
   - Facility Type: loan_facility_type 
   - Specified Purpose: loan_specified_purpose 
-  - Amount of Loan: loan_amount   
+  - Amount of Loan: loan_amount 
+    min: 0
+    max: 9999999999
   - Rate of Interest: loan_interest_rate    
     datatype: number
   - Rate of FRR: loan_frr_rate    
@@ -403,6 +405,15 @@ fields:
   - MRFD-SD/DSRA : security_deposit_amount
     show if: security_deposit_or_dsra
   - Lock-in Period: loan_lockin_period 
+
+validation code: |
+  l_m = loan_amount.replace(",","")
+  if int(l_m) >= 10000000000 :
+    validation_error('Loan amount should be less than 10000000000',field="loan_amount")
+  if security_deposit_or_dsra:
+    dsa_m = security_deposit_amount.replace(",","")
+    if int(dsa_m) >= 10000000000 :
+      validation_error('Security Deposit amount should be less than 10000000000',field="security_deposit_amount")
 
 script: |
   <script>
