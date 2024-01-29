@@ -521,7 +521,7 @@ attachment code: |
 attachment:
   name: Document for Personal Loan
   variable name: the_document
-  docx template file: PL_Booklet.docx
+  docx template file: PL_Booklet_1.docx
   valid formats:
     - pdf
     - docx
