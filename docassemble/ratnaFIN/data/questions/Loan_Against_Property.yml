@@ -44,7 +44,7 @@ code: |
 ---
 field: aggrement_details
 question: |
-  Agreement Details 
+  Agreement Detailss
 fields:
   - Date of the Agreement : agreement_date 
     datatype: date
